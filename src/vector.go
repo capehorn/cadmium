@@ -206,6 +206,20 @@ func (p Vector) SegmentDistance(v Vector, w Vector) float64 {
 	return v.Add(w.Sub(v).MulScalar(t)).Distance(p)
 }
 
+func Average(vectors []Vector) Vector {
+	count := len(vectors)
+	x := 0.0
+	y := 0.0
+	z := 0.0
+	for i := 0; i < count; i++ {
+		v := vectors[i]
+		x += v.X
+		y += v.Y
+		z += v.Z
+	}
+	return V(x/float64(count), y/float64(count), z/float64(count))
+}
+
 type VectorW struct {
 	X, Y, Z, W float64
 }

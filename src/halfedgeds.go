@@ -6,10 +6,18 @@ type HalfedgeDS struct {
 }
 
 type Halfedge struct {
-	vIdx int
-	next *Halfedge
-	twin *Halfedge
+	vIdx  int
+	next  *Halfedge
+	twin  *Halfedge
+	flags Flags
 }
+
+type Flags = uint8
+
+const (
+	Visited Flags = 1 << iota
+	Clockwise
+)
 
 func NewHalfedgeDS(vertices []Vector, faces [][]int) *HalfedgeDS {
 	ds := HalfedgeDS{Halfedge: nil, Vertices: vertices}
@@ -32,6 +40,16 @@ func NewHalfedgeDS(vertices []Vector, faces [][]int) *HalfedgeDS {
 	}
 	ds.Halfedge = halfedgeFaces[0]
 	return &ds
+}
+
+func (ds HalfedgeDS) faceVertices(he *Halfedge) []Vector {
+	vertices := []Vector{}
+	current := he
+	for he != current.next {
+		vertices = append(vertices, ds.Vertices[he.vIdx])
+		current = current.next
+	}
+	return vertices
 }
 
 func (he Halfedge) copy() Halfedge {
