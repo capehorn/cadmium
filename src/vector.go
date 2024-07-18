@@ -29,6 +29,10 @@ func (a Vector) VectorW() VectorW {
 	return VectorW{a.X, a.Y, a.Z, 1}
 }
 
+func (a Vector) Copy() Vector {
+	return Vector{a.X, a.Y, a.Z}
+}
+
 func (a Vector) IsDegenerate() bool {
 	nan := math.IsNaN(a.X) || math.IsNaN(a.Y) || math.IsNaN(a.Z)
 	inf := math.IsInf(a.X, 0) || math.IsInf(a.Y, 0) || math.IsInf(a.Z, 0)

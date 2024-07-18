@@ -93,3 +93,7 @@ func (t *Triangle) RandomPoint() Vector {
 		}
 	}
 }
+
+func QuadToTriangles(p, q, r, s Vector) (*Triangle, *Triangle) {
+	return NewTriangleForPoints(p, q, r), NewTriangleForPoints(r, s, p)
+}

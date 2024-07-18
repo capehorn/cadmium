@@ -11,7 +11,7 @@ package cadmium
 //       -3  3  0  0
 //        1  0  0  0
 //     ]
-// The control points is calculated using the Bernstein polynomial
+// The control points are calculated using the Bernstein polynomial
 // P = [
 //	     p(1,1) p(1,2) p(1,3) p(1,4)
 //       p(2,1) p(2,2)...
@@ -124,17 +124,13 @@ func (bbp BicubicBezierPatch) Triangulate(m, n int) []*Triangle {
 			if j == n-1 {
 				vNext = 1.0
 			}
-			tBottom, tTop := quadToTriangles(bbp.PointAt(u, v), bbp.PointAt(u, vNext), bbp.PointAt(uNext, vNext), bbp.PointAt(uNext, v))
+			tBottom, tTop := QuadToTriangles(bbp.PointAt(u, v), bbp.PointAt(u, vNext), bbp.PointAt(uNext, vNext), bbp.PointAt(uNext, v))
 			triangles = append(triangles, tBottom, tTop)
 			v = vNext
 		}
 		u = uNext
 	}
 	return triangles
-}
-
-func quadToTriangles(p, q, r, s Vector) (*Triangle, *Triangle) {
-	return NewTriangleForPoints(p, q, r), NewTriangleForPoints(r, s, p)
 }
 
 func (bbp BicubicBezierPatch) Transform(matrix Matrix) BicubicBezierPatch {

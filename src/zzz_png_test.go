@@ -6,7 +6,6 @@ import (
 	"github.com/fogleman/gg"
 )
 
-// push test
 func Test_cubicBezierSubdivision(test *testing.T) {
 	cb := NewCubicBezier(V(0, 0, 0), V(300, 100, 0), V(250, 380, 0), V(350, 220, 0))
 

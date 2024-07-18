@@ -43,4 +43,28 @@ func ParseFloats(items []string) []float64 {
 	return result
 }
 
+func SlidingWindow2[T any](s []T, closed bool) [][2]T {
+	var ret [][2]T
+	for i := 0; i <= len(s)-2; i++ {
+		ret = append(ret, [2]T{s[i], s[i+1]})
+	}
+	if closed {
+		ret = append(ret, [2]T{s[len(s)-1], s[0]})
+	}
+	return ret
+}
+
+func SlidingWindow3[T any](s []T, closed bool) [][3]T {
+	var ret [][3]T
+	l := len(s)
+	for i := 0; i <= l-3; i++ {
+		ret = append(ret, [3]T{s[i], s[i+1], s[i+2]})
+	}
+	if closed {
+		ret = append(ret, [3]T{s[l-2], s[l-1], s[0]})
+		ret = append(ret, [3]T{s[l-1], s[0], s[1]})
+	}
+	return ret
+}
+
 var powersOfTen = []float64{1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16}
