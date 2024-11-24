@@ -3,77 +3,71 @@ package capehorn.cadmium.core;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Vec3 {
-    private static final int X = 0;
-    private static final int Y = 1;
-    private static final int Z = 2;
-
-    public final double[] vs;
-
-    private Vec3(double x, double y, double z) {
-        this.vs = new double[] {x, y, z};
-    }
+public record Vec3(double x, double y, double z) {
 
     public static Vec3 of(double x, double y, double z) {
         return new Vec3(x, y, z);
     }
 
+    @Override
+    public String toString() {
+        return "Vec3{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
+    }
+
     public Vec3 copy() {
-        return new Vec3(vs[X], vs[Y], vs[Z]);
+        return new Vec3(x, y, z);
     }
 
     public Vec4 toVec4(double w) {
-        return Vec4.of(vs[X], vs[Y], vs[Z], w);
+        return Vec4.of(x, y, z, w);
     }
 
     public Vec3 abs() {
-        return new Vec3(Math.abs(vs[X]), Math.abs(vs[Y]), Math.abs(vs[Z]));
+        return new Vec3(Math.abs(x), Math.abs(y), Math.abs(z));
     }
 
     public Vec3 add(Vec3 v) {
-        var os = v.vs;
-        return new Vec3(vs[X]+os[X], vs[Y]+os[Y], vs[Z]+os[Z]);
+        return new Vec3(x + v.x, y + v.y, z + v.z);
     }
 
     public Vec3 sub(Vec3 v) {
-        var os = v.vs;
-        return new Vec3(vs[X]-os[X], vs[Y]-os[Y], vs[Z]-os[Z]);
+        return new Vec3(x - v.x, y - v.y, z - v.z);
     }
 
     public Vec3 mul(Vec3 v) {
-        var os = v.vs;
-        return new Vec3(vs[X]*os[X], vs[Y]*os[Y], vs[Z]*os[Z]);
+        return new Vec3(x * v.x, y * v.y, z * v.z);
     }
 
     public Vec3 div(Vec3 v) {
-        var os = v.vs;
-        return new Vec3(vs[X]/os[X], vs[Y]/os[Y], vs[Z]/os[Z]);
+        return new Vec3(x / v.x, y / v.y, z / v.z);
     }
 
     public double length() {
-        return Math.sqrt(vs[X]*vs[X] + vs[Y]*vs[Y] + vs[Z]*vs[Z]);
+        return Math.sqrt(x * x + y * y + z * z);
     }
 
-    public Vec3 negate(Vec3 v) {
-        return new Vec3(-vs[X], -vs[Y], -vs[Z]);
+    public Vec3 negate() {
+        return new Vec3(-x, -y, -z);
     }
 
     public Vec3 normalize() {
-        double r = 1 / Math.sqrt(vs[X]*vs[X] + vs[Y]*vs[Y] + vs[Z]*vs[Z]);
-        return new Vec3(vs[X] * r, vs[Y] * r, vs[Z] * r);
+        double r = 1 / Math.sqrt(x * x + y * y + z * z);
+        return new Vec3(x * r, y * r, z * r);
     }
 
     public double dot(Vec3 v) {
-        var os = v.vs;
-        return vs[X]*os[X] + vs[Y]*os[Y] + vs[Z]*os[Z];
+        return x * v.x + y * v.y + z * v.z;
     }
 
     public Vec3 cross(Vec3 v) {
-        var os = v.vs;
         return new Vec3(
-                vs[Y]*os[Z] - vs[Z]*os[Y],
-                vs[Z]*os[X] - vs[X]*os[Z],
-                vs[X]*os[Y] - vs[Y]*os[X]
+                y * v.z - z * v.y,
+                z * v.x - x * v.z,
+                x * v.y - y * v.x
         );
     }
 
@@ -85,49 +79,44 @@ public class Vec3 {
         return add(v.sub(this).normalize().mulScalar(t));
     }
 
-
     public Vec3 mod(Vec3 v) {
-        // as implemented in GLSL
-        var os = v.vs;
         return new Vec3(
-                vs[X] - os[X]*Math.floor(vs[X]/os[X]),
-                vs[Y] - os[Y]*Math.floor(vs[Y]/os[Y]),
-                vs[Z] - os[Z]*Math.floor(vs[Z]/os[Z])
+                x - v.x * Math.floor(x / v.x),
+                y - v.y * Math.floor(y / v.y),
+                z - v.z * Math.floor(z / v.z)
         );
     }
 
     public Vec3 addScalar(double s) {
-        return new Vec3(vs[X]+s, vs[Y]+s, vs[Z]+s);
+        return new Vec3(x + s, y + s, z + s);
     }
 
     public Vec3 subScalar(double s) {
-        return new Vec3(vs[X]-s, vs[Y]-s, vs[Z]-s);
+        return new Vec3(x - s, y - s, z - s);
     }
 
     public Vec3 mulScalar(double s) {
-        return new Vec3(vs[X]*s, vs[Y]*s, vs[Z]*s);
+        return new Vec3(x * s, y * s, z * s);
     }
 
     public Vec3 divScalar(double s) {
-        return new Vec3(vs[X]/s, vs[Y]/s, vs[Z]/s);
+        return new Vec3(x / s, y / s, z / s);
     }
 
     public Vec3 min(Vec3 v) {
-        var os = v.vs;
-        return new Vec3(Math.min(vs[X], os[X]), Math.min(vs[Y], os[Y]), Math.min(vs[Z], os[Z]));
+        return new Vec3(Math.min(x, v.x), Math.min(y, v.y), Math.min(z, v.z));
     }
 
     public Vec3 max(Vec3 v) {
-        var os = v.vs;
-        return new Vec3(Math.max(vs[X], os[X]), Math.max(vs[Y], os[Y]), Math.max(vs[Z], os[Z]));
+        return new Vec3(Math.max(x, v.x), Math.max(y, v.y), Math.max(z, v.z));
     }
 
     public Vec3 floor() {
-        return new Vec3(Math.floor(vs[X]), Math.floor(vs[Y]), Math.floor(vs[Z]));
+        return new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
     }
 
     public Vec3 ceil() {
-        return new Vec3(Math.ceil(vs[X]), Math.ceil(vs[Y]), Math.ceil(vs[Z]));
+        return new Vec3(Math.ceil(x), Math.ceil(y), Math.ceil(z));
     }
 
     public Vec3 round() {
@@ -136,18 +125,18 @@ public class Vec3 {
 
     public Vec3 roundPlaces(int n) {
         return new Vec3(
-                BigDecimal.valueOf(vs[X]).setScale(n, RoundingMode.HALF_UP).doubleValue(),
-                BigDecimal.valueOf(vs[Y]).setScale(n, RoundingMode.HALF_UP).doubleValue(),
-                BigDecimal.valueOf(vs[Z]).setScale(n, RoundingMode.HALF_UP).doubleValue()
+                BigDecimal.valueOf(x).setScale(n, RoundingMode.HALF_UP).doubleValue(),
+                BigDecimal.valueOf(y).setScale(n, RoundingMode.HALF_UP).doubleValue(),
+                BigDecimal.valueOf(z).setScale(n, RoundingMode.HALF_UP).doubleValue()
         );
     }
 
     public double minComponent() {
-        return Math.min(Math.min(vs[X], vs[Y]), vs[Z]);
+        return Math.min(Math.min(x, y), z);
     }
 
     public double maxComponent() {
-        return Math.max(Math.max(vs[X], vs[Y]), vs[Z]);
+        return Math.max(Math.max(x, y), z);
     }
 
     public Vec3 reflect(Vec3 v) {
@@ -155,13 +144,13 @@ public class Vec3 {
     }
 
     public Vec3 perpendicular() {
-        if (vs[X] == 0 && vs[Y] == 0) {
-            if (vs[Z] == 0) {
+        if (x == 0 && y == 0) {
+            if (z == 0) {
                 return new Vec3(0, 0, 0);
             }
             return new Vec3(0, 1, 0);
         }
-        return new Vec3(-vs[Y], vs[X], 0).normalize();
+        return new Vec3(-y, x, 0).normalize();
     }
 
     public double distance(Vec3 v) {
@@ -169,7 +158,7 @@ public class Vec3 {
     }
 
     public double lengthSquared() {
-        return vs[X]*vs[X] + vs[Y]*vs[Y] + vs[Z]*vs[Z];
+        return x * x + y * y + z * z;
     }
 
     public double distanceSquared(Vec3 v) {
@@ -201,5 +190,9 @@ public class Vec3 {
         return v.add(w.sub(v).mulScalar(t)).distance(this);
     }
 
+    public boolean isDegenerate() {
+        return Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(z)
+                || Double.isInfinite(x) || Double.isInfinite(y) || Double.isInfinite(z);
+    }
 
 }
