@@ -2,11 +2,34 @@ package capehorn.cadmium.core;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 public record Vec3(double x, double y, double z) {
 
     public static Vec3 of(double x, double y, double z) {
         return new Vec3(x, y, z);
+    }
+
+    public static Vec3 ofXYZ(double... src) {
+        if (src.length != 3) {
+            throw new IllegalArgumentException("Src must contain exactly 3 elements and not " + src.length);
+        }
+        return new Vec3(src[0], src[1], src[2]);
+    }
+
+    public static List<Vec3> ofSeries(double... src) {
+        if (src.length < 3 || src.length % 3 != 0) {
+            throw new IllegalArgumentException("Src must contain exactly multiple of 3 elements and not " + src.length);
+        }
+        int l = src.length / 2;
+        int s;
+        List<Vec3> vs = new ArrayList<>(l);
+        for (int i = 0; i < l - 1; i++) {
+            s = i * 3;
+            vs.add(of(src[s], src[s+1], src[s+2]));
+        }
+        return vs;
     }
 
     @Override
@@ -16,6 +39,10 @@ public record Vec3(double x, double y, double z) {
                 ", y=" + y +
                 ", z=" + z +
                 '}';
+    }
+
+    public double[] toArray() {
+        return new double[] {x, y, z};
     }
 
     public Vec3 copy() {

@@ -22,6 +22,12 @@ class Vec3Test {
     }
 
     @Test
+    void ofSeries() {
+        assertThat(Vec3.ofSeries(1, 2, 3, 4, 5, 6))
+                .containsExactly(Vec3.of(1, 2, 3), Vec3.of(4, 5, 6));
+    }
+
+    @Test
     void copy() {
         assertThat(Vec3.of(1, 2, 3).copy()).isEqualTo(Vec3.of(1, 2, 3));
     }

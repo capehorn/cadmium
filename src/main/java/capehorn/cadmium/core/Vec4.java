@@ -16,6 +16,10 @@ public record Vec4(double x, double y, double z, double w) {
                 '}';
     }
 
+    public double[] toArray() {
+        return new double[]{x, y, z, w};
+    }
+
     public Vec4 copy() {
         return new Vec4(x, y, z, w);
     }
