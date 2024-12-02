@@ -9,7 +9,7 @@ import java.util.function.Function;
  */
 public class VecBuffer {
 
-    private final int[] itemPattern;
+    private final int[] itemLayout;
     private final int itemSize;
 
     private double[] storage;
@@ -23,21 +23,21 @@ public class VecBuffer {
      */
     private int capacity;
 
-    public VecBuffer(int[] itemPattern) {
-        this(itemPattern, 32);
+    public VecBuffer(int[] itemLayout) {
+        this(itemLayout, 32);
     }
 
-    public VecBuffer(int[] itemPattern, int numOfItems) {
-        this.itemPattern = itemPattern;
-        this.itemSize = Arrays.stream(this.itemPattern).sum();
+    public VecBuffer(int[] itemLayout, int numOfItems) {
+        this.itemLayout = itemLayout;
+        this.itemSize = Arrays.stream(this.itemLayout).sum();
         this.storage = new double[numOfItems * this.itemSize];
         this.capacity = numOfItems;
         this.position = 0;
     }
 
-    private VecBuffer(int[] itemPattern, double[] src) {
-        this.itemPattern = itemPattern;
-        this.itemSize = Arrays.stream(this.itemPattern).sum();
+    private VecBuffer(int[] itemLayout, double[] src) {
+        this.itemLayout = itemLayout;
+        this.itemSize = Arrays.stream(this.itemLayout).sum();
         this.storage = src;
         this.capacity = src.length / itemSize;
         this.position = this.capacity;

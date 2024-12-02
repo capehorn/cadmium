@@ -1,7 +1,10 @@
-package capehorn.cadmium.io;
+package capehorn.cadmium.format;
 
-import capehorn.cadmium.core.VecBuffer;
+import capehorn.cadmium.CadmiumRuntimeException;
+import capehorn.cadmium.core.Vec3;
 
+import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
@@ -12,20 +15,12 @@ public class Obj {
         return new ObjFormatWriter(writer);
     }
 
-    public static class ObjFormatWriter extends Writer {
+    public static class ObjFormatWriter implements Closeable, Flushable {
         private final Writer writer;
+        private int vertexCounter;
 
         public ObjFormatWriter(Writer writer) {
             this.writer = writer;
-        }
-
-        @Override
-        public void write(char[] cbuf, int off, int len) throws IOException {
-            Objects.checkFromIndexSize(off, len, cbuf.length);
-            if (len == 0) {
-                return;
-            }
-            writer.append(new String(cbuf));
         }
 
         @Override
@@ -38,39 +33,46 @@ public class Obj {
             writer.close();
         }
 
-        public void writeVertex(double x, double y, double z) throws IOException {
-            writer.append(String.format("v %f %f %f", x, y, z));
+        public int writeVertex(double x, double y, double z) {
+            write(String.format("v %f %f %f\n", x, y, z));
+            return ++vertexCounter;
         }
 
-        public void writeVertex(double x, double y, double z, double w) throws IOException {
-            writer.append(String.format("v %f %f %f %f", x, y, z, w));
+        public int writeVertex(Vec3 v) {
+            write(String.format("v %f %f %f\n", v.x(), v.y(), v.z()));
+            return ++vertexCounter;
         }
 
-        public void writeVertexNormal(double x, double y, double z) throws IOException {
-            writer.append(String.format("vn %f %f %f", x, y, z));
+        public int writeVertex(double x, double y, double z, double w) {
+            write(String.format("v %f %f %f %f\n", x, y, z, w));
+            return ++vertexCounter;
         }
 
-        public void writeFace(int... faceIndices) throws IOException {
+        public void writeVertexNormal(double x, double y, double z) {
+            write(String.format("vn %f %f %f\n", x, y, z));
+        }
+
+        public void writeFace(int... faceIndices) {
             StringBuilder sb = new StringBuilder();
             writeFaceAccordingly(faceIndices, null, null);
         }
 
-        public void writeFaceWithTexture(int[] faceIndices, int[] textureIndices) throws IOException {
+        public void writeFaceWithTexture(int[] faceIndices, int[] textureIndices) {
             // TODO verify input (equal length)
             writeFace(faceIndices, textureIndices, null);
         }
 
-        public void writeFaceWithNormal(int[] faceIndices, int[] normalIndices) throws IOException {
+        public void writeFaceWithNormal(int[] faceIndices, int[] normalIndices) {
             // TODO verify input (equal length)
             writeFace(faceIndices, null, normalIndices);
         }
 
-        public void writeFace(int[] faceIndices, int[] textureIndices, int[] normalIndices) throws IOException {
+        public void writeFace(int[] faceIndices, int[] textureIndices, int[] normalIndices) {
             // TODO verify input (equal length)
             writeFaceAccordingly(faceIndices, textureIndices, normalIndices);
         }
 
-        private void writeFaceAccordingly(int[] fs, int[] ts, int[] ns) throws IOException {
+        private void writeFaceAccordingly(int[] fs, int[] ts, int[] ns) {
             StringBuilder sb = new StringBuilder("f");
             for (int i = 0; i < fs.length; i++) {
                 sb.append(" ").append(fs[i]);
@@ -87,7 +89,16 @@ public class Obj {
                 }
                 sb.append("//").append(ns[i]);
             }
-            writer.append("f").append(sb.toString());
+            sb.append("\n");
+            write(sb.toString());
+        }
+
+        private void write(String str) {
+            try {
+                writer.write(str);
+            } catch (IOException e) {
+                throw new CadmiumRuntimeException("Failed to write into obj. format: " + str);
+            }
         }
     }
 

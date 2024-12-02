@@ -4,9 +4,14 @@ import capehorn.cadmium.core.VecBuffer;
 import capehorn.cadmium.geom.Box;
 import capehorn.cadmium.geom.Triangle;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 public class TriangleMesh {
     private final VecBuffer buff;
-    private enum ItemDesc {
+    private enum ItemLayout {
         p1(3),
         p2(3),
         p3(3),
@@ -14,31 +19,38 @@ public class TriangleMesh {
 
         private final int size;
 
-        ItemDesc(int size) {
+        ItemLayout(int size) {
             this.size = size;
+        }
+
+        public static int[] toArray() {
+            return Arrays.stream(ItemLayout.values()).mapToInt(v -> v.size).toArray();
         }
     }
 
     private Box boundingBox;
 
-    private TriangleMesh() {
-        this.buff = new VecBuffer(new int[]{ItemDesc.p1.size, ItemDesc.p2.size, ItemDesc.p3.size, ItemDesc.n.size});
+    public TriangleMesh() {
+        this.buff = new VecBuffer(ItemLayout.toArray());
     }
 
     public void addTriangles(Triangle... ts) {
         for (var t : ts) {
-            buff.put(
-                    t.getP1().x(), t.getP1().y(), t.getP1().z(),
-                    t.getP2().x(), t.getP2().y(), t.getP2().z(),
-                    t.getP3().x(), t.getP3().y(), t.getP3().z(),
-                    t.getNormal().x(), t.getP1().y(), t.getP1().z()
-            );
+            buff.put(t.toArray());
         }
         dirty();
     }
 
     public void addTriangleMesh(TriangleMesh other) {
 
+    }
+
+    public void forEachTriangle(Consumer<Triangle> consumer) {
+        buff.setPosition(0);
+        int limit = buff.getLimit();
+        while (buff.getPosition() < limit) {
+            consumer.accept(Triangle.fromArray(buff.get()));
+        }
     }
 
     private void dirty() {

@@ -6,33 +6,39 @@ import capehorn.cadmium.core.Vec3;
 
 import java.util.Objects;
 
-public class Triangle implements AffineTransform<Triangle> {
-    private final Vec3 p1;
-    private final Vec3 p2;
-    private final Vec3 p3;
-    private final Vec3 normal;
+public record Triangle(Vec3 p1, Vec3 p2, Vec3 p3, Vec3 normal) implements AffineTransform<Triangle> {
 
     public Triangle(Vec3 p1, Vec3 p2, Vec3 p3) {
-        this.p1 = p1;
-        this.p2 = p2;
-        this.p3 = p3;
-        this.normal = p2.sub(p1).cross(p3.sub(p1)).normalize();
+        this(p1, p2, p3, computeNormal(p1, p2, p3));
     }
 
-    public Vec3 getP1() {
-        return p1;
+    public static Vec3 computeNormal(Vec3 p1, Vec3 p2, Vec3 p3) {
+        return p2.sub(p1).cross(p3.sub(p1)).normalize();
     }
 
-    public Vec3 getP2() {
-        return p2;
+    public double[] toArray() {
+        return new double[] {
+                p1.x(), p1.y(), p1.z(),
+                p2.x(), p2.y(), p2.z(),
+                p3.x(), p3.y(), p3.z(),
+                normal.x(), normal.y(), normal.z(),
+        };
     }
 
-    public Vec3 getP3() {
-        return p3;
-    }
-
-    public Vec3 getNormal() {
-        return normal;
+    public static Triangle fromArray(double[] vs) {
+        if (vs.length == 9) {
+            return new Triangle(
+                    Vec3.of(vs[0], vs[1], vs[2]),
+                    Vec3.of(vs[3], vs[4], vs[5]),
+                    Vec3.of(vs[6], vs[7], vs[8]));
+        } else if (vs.length == 12) {
+            return new Triangle(
+                    Vec3.of(vs[0], vs[1], vs[2]),
+                    Vec3.of(vs[3], vs[4], vs[5]),
+                    Vec3.of(vs[6], vs[7], vs[8]),
+                    Vec3.of(vs[9], vs[10], vs[11]));
+        }
+        throw new IllegalArgumentException("The input length should be 9 (3 points) or 12 (3 points + normal)");
     }
 
     public double area() {
@@ -63,18 +69,6 @@ public class Triangle implements AffineTransform<Triangle> {
     public boolean isDegenerate() {
         return p1.equals(p2) || p1.equals(p3) || p2.equals(p3)
                 || p1.isDegenerate() || p2.isDegenerate() || p3.isDegenerate();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Triangle triangle = (Triangle) o;
-        return Objects.equals(p1, triangle.p1) && Objects.equals(p2, triangle.p2) && Objects.equals(p3, triangle.p3);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(p1, p2, p3);
     }
 
     @Override
