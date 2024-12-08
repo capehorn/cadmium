@@ -32,6 +32,35 @@ public record Mat4x4(double... vs) {
         );
     }
 
+    public static Mat4x4 rotation(Vec3 vec, double rad) {
+        Vec3 v = vec.normalize();
+        double s = Math.sin(rad);
+        double c = Math.cos(rad);
+        double m = 1 - c;
+        double mx = m*v.x();
+        double my = m*v.y();
+        double mz = m*v.z();
+        return new Mat4x4(
+                mx*v.x() + c,       mx*v.y() + v.z()*s, mz*v.x() - v.y()*s, 0,
+                mx*v.y() - v.z()*s, my*v.y() + c,       my*v.z() + v.x()*s, 0,
+                mz*v.x() + v.y()*s, my*v.z() - v.x()*s, mz*v.z() + c,       0,
+                0,                  0,                  0,                  1
+        );
+    }
+
+    public static Mat4x4 rotationTo(Vec3 a, Vec3 b) {
+        var dot = b.dot(a);
+        if (dot == 1) {
+            return Identity;
+        } else if (dot == -1) {
+            return rotation(a.perpendicular(), Math.PI);
+        } else {
+            var angle = Math.acos(dot);
+            var v = b.cross(a).normalize();
+            return rotation(v, angle);
+        }
+    }
+
     public static Mat4x4 scaling(double x, double y, double z) {
         return new Mat4x4(
                 x, 0, 0, 0,
@@ -40,18 +69,6 @@ public record Mat4x4(double... vs) {
                 0, 0, 0, 1
         );
     }
-
-//    public static Mat4x4 rotation(Vec v, double angle) {
-//        v = v.Normalize()
-//        s := math.Sin(a)
-//        c := math.Cos(a)
-//        m := 1 - c
-//        return Matrix{
-//            m*v.X*v.X + c, m*v.X*v.Y + v.Z*s, m*v.Z*v.X - v.Y*s, 0,
-//                    m*v.X*v.Y - v.Z*s, m*v.Y*v.Y + c, m*v.Y*v.Z + v.X*s, 0,
-//                    m*v.Z*v.X + v.Y*s, m*v.Y*v.Z - v.X*s, m*v.Z*v.Z + c, 0,
-//                    0, 0, 0, 1}
-//    }
 
     @Override
     public boolean equals(Object o) {
@@ -75,13 +92,24 @@ public record Mat4x4(double... vs) {
                 , vs[X30], vs[X31], vs[X32], vs[X33]);
     }
 
+    public Vec3 getCol0() {
+        return Vec3.of(vs[X00], vs[X10], vs[X20]);
+    }
+
+    public Vec3 getCol1() {
+        return Vec3.of(vs[X01], vs[X11], vs[X21]);
+    }
+
+    public Vec3 getCol2() {
+        return Vec3.of(vs[X02], vs[X12], vs[X22]);
+    }
+
+    public Vec3 getCol3() {
+        return Vec3.of(vs[X03], vs[X13], vs[X23]);
+    }
+
     public Mat4x4 translate(double x, double y, double z) {
-        return new Mat4x4(
-                1, 0, 0, x,
-                0, 1, 0, y,
-                0, 0, 1, z,
-                0, 0, 0, 1
-        ).mul(this);
+        return translation(x, y, z).mul(this);
     }
 
     public Mat4x4 transpose() {
@@ -162,32 +190,6 @@ public record Mat4x4(double... vs) {
                 vs[X10] * v.x() + vs[X11] * v.y() + vs[X12] * v.z() + vs[X13],
                 vs[X20] * v.x() + vs[X21] * v.y() + vs[X22] * v.z() + vs[X23]
         );
-    }
-
-    public Box mulBox(Box box) {
-        // http://dev.theomader.com/transform-bounding-boxes/
-        var r = Vec3.of(vs[X00], vs[X10], vs[X20]);
-        var u = Vec3.of(vs[X01], vs[X11], vs[X21]);
-        var b = Vec3.of(vs[X02], vs[X12], vs[X22]);
-        var t = Vec3.of(vs[X03], vs[X13], vs[X23]);
-        var xa = r.mulScalar(box.min().x());
-        var xb = r.mulScalar(box.max().x());
-        var ya = u.mulScalar(box.min().y());
-        var yb = u.mulScalar(box.max().y());
-        var za = b.mulScalar(box.min().z());
-        var zb = b.mulScalar(box.max().z());
-        var temp = xa;
-        xa = xa.min(xb);
-        xb = temp.max(xb);
-        temp = ya;
-        ya = ya.min(yb);
-        yb = temp.max(yb);
-        temp = za;
-        za = za.min(zb);
-        zb = temp.max(zb);
-        var min = xa.add(ya).add(za).add(t);
-        var max = xb.add(yb).add(zb).add(t);
-        return new Box(min, max);
     }
 
     private static final int X00 = 0;

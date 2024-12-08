@@ -53,7 +53,6 @@ public class Obj {
         }
 
         public void writeFace(int... faceIndices) {
-            StringBuilder sb = new StringBuilder();
             writeFaceAccordingly(faceIndices, null, null);
         }
 
@@ -70,6 +69,15 @@ public class Obj {
         public void writeFace(int[] faceIndices, int[] textureIndices, int[] normalIndices) {
             // TODO verify input (equal length)
             writeFaceAccordingly(faceIndices, textureIndices, normalIndices);
+        }
+
+        public void writeLine(int[] vertexIndices) {
+            StringBuilder sb = new StringBuilder("l");
+            for (int idx: vertexIndices) {
+                sb.append(" ").append(idx);
+            }
+            sb.append("\n");
+            write(sb.toString());
         }
 
         private void writeFaceAccordingly(int[] fs, int[] ts, int[] ns) {

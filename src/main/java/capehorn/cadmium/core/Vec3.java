@@ -193,16 +193,31 @@ public record Vec3(double x, double y, double z) {
     }
 
 
-    // distance between p and m (point segment distance)
-    //
-    //	               x v
-    //	p x           /
-    //	             /
-    //	            x m
-    //	           /
-    //	          /
-    //	         x w
-    public double segmentDistance(Vec3 v, Vec3 w) {
+    /**
+     * Distance between point P and M
+     * <pre>
+     *                         /
+     *                        / e
+     *                       /
+     *                      /
+     *     	               x V
+     *     	P x           /
+     *     	             /
+     *     	            x M
+     *     	           /
+     *     	          /
+     *     	         x W
+     *     	        /
+     * </pre>
+     *
+     * e is the line defined by point V and W
+     * M is the point on e chosen such as that the segment PM is perpendicular to line e
+     *
+     * @param v point
+     * @param w point
+     * @return distance from segment
+     */
+    public double perpendicularDistanceFrom(Vec3 v, Vec3 w) {
         double d2 = v.distanceSquared(w);
         if (d2 == 0) {
             return distance(v);

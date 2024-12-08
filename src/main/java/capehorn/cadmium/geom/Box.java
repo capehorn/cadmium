@@ -74,6 +74,31 @@ public record Box(Vec3 min, Vec3 max) implements AffineTransform<Box> {
     }
 
     public Box transform(Mat4x4 mat) {
-        return mat.mulBox(this);
+        return mulBox(mat);
+    }
+
+    public Box mulBox(Mat4x4 m) {
+        var r = m.getCol0();
+        var u = m.getCol1();
+        var b = m.getCol2();
+        var t = m.getCol3();
+        var xa = r.mulScalar(min().x());
+        var xb = r.mulScalar(max().x());
+        var ya = u.mulScalar(min().y());
+        var yb = u.mulScalar(max().y());
+        var za = b.mulScalar(min().z());
+        var zb = b.mulScalar(max().z());
+        var temp = xa;
+        xa = xa.min(xb);
+        xb = temp.max(xb);
+        temp = ya;
+        ya = ya.min(yb);
+        yb = temp.max(yb);
+        temp = za;
+        za = za.min(zb);
+        zb = temp.max(zb);
+        var min = xa.add(ya).add(za).add(t);
+        var max = xb.add(yb).add(zb).add(t);
+        return new Box(min, max);
     }
 }
